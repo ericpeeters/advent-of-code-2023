@@ -25,10 +25,7 @@ describe("day1", () => {
   });
 
   it("should be able to get the sum of calibration including written numbers", () => {
-    const testData = [
-      "eightclmbz3gphlxeightwov",
-      // "eightclmbz3twogphl4xeightwov",
-    ];
+    const testData = ["eightclmbz3gphlxeightwov"];
 
     expect(getSumOfCalibrationIncludingWrittenNumbers(testData)).toEqual(82);
   });
