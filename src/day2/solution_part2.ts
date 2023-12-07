@@ -4,13 +4,9 @@ type ColorAmounts = {
   blue: number;
 };
 
-const possibilities: ColorAmounts = {
-  red: 12,
-  green: 13,
-  blue: 14,
-};
+/* ========================================================================== */
 
-function getColorAmountsForGames(games: string[]): ColorAmounts[] {
+export function getColorAmountsForGames(games: string[]): ColorAmounts[] {
   return games
     .map((game) =>
       game
@@ -32,26 +28,26 @@ function getColorAmountsForGames(games: string[]): ColorAmounts[] {
           // Create an object with the amount and color parse as a number
           .map(([amount, color]) => ({ amount: parseInt(amount, 10), color }))
           .reduce(
-            (acc, { amount, color }) => ({
-              ...acc,
-              [color]: acc[color] + amount,
-            }),
+            (minAmounts, { amount, color }) => {
+              if (minAmounts[color] > amount) {
+                return minAmounts;
+              }
+
+              return {
+                ...minAmounts,
+                [color]: amount,
+              };
+            },
             { red: 0, green: 0, blue: 0 }
           ),
       {}
     );
 }
 
-function isPossible(game: ColorAmounts): boolean {
-  return (
-    game.red <= possibilities.red &&
-    game.green <= possibilities.green &&
-    game.blue <= possibilities.blue
-  );
-}
+export function getSumOfPowers(games: string[]) {
+  const minColorAmounts = getColorAmountsForGames(games);
 
-export function getSumOfPossibleGames(games: string[]): number {
-  return getColorAmountsForGames(games).reduce((sum, game, index) => {
-    return isPossible(game) ? sum + (index + 1) : sum;
+  return minColorAmounts.reduce((sum, colors) => {
+    return sum + colors.red * colors.green * colors.blue;
   }, 0);
 }
