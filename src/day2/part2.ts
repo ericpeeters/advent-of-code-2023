@@ -1,3 +1,7 @@
+import { executeSolution } from "../utilities/execution";
+
+/* ========================================================================== */
+
 type ColorAmounts = {
   red: number;
   green: number;
@@ -51,3 +55,7 @@ export function getSumOfPowers(games: string[]) {
     return sum + colors.red * colors.green * colors.blue;
   }, 0);
 }
+
+/* ========================================================================== */
+
+executeSolution("./src/day2/input.txt", getSumOfPowers);

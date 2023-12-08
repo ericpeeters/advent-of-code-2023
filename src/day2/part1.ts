@@ -1,3 +1,7 @@
+import { executeSolution } from "../utilities/execution";
+
+/* ========================================================================== */
+
 const maxColorAmounts = {
   blue: 14,
   green: 13,
@@ -49,3 +53,7 @@ export function getSumOfPossibleGames(games: string[]): number {
     return sum + parseInt(gameId, 10);
   }, 0);
 }
+
+/* ========================================================================== */
+
+executeSolution("./src/day2/input.txt", getSumOfPossibleGames);

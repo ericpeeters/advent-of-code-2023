@@ -1,3 +1,7 @@
+import { executeSolution } from "../utilities/execution";
+
+/* ========================================================================== */
+
 // Function for part one
 export function getSumOfCalibrationForDigits(input: string[]): number {
   return input.reduce((solution, str) => {
@@ -14,3 +18,7 @@ export function getSumOfCalibrationForDigits(input: string[]): number {
     return solution + parseInt(charsToAdd, 10);
   }, 0);
 }
+
+/* ========================================================================== */
+
+executeSolution("./src/day1/input.txt", getSumOfCalibrationForDigits);

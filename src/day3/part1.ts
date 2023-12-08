@@ -1,3 +1,7 @@
+import { executeSolution } from "../utilities/execution";
+
+/* ========================================================================== */
+
 type EngineSchemaRow = {
   numberIndexes: string[];
   symbolIndexes: number[];
@@ -150,3 +154,7 @@ export function getSumOfPiecesInEngineSchema(input: string[]): number {
       )
   );
 }
+
+/* ========================================================================== */
+
+executeSolution("./src/day3/input.txt", getSumOfPiecesInEngineSchema);

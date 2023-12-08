@@ -1,8 +1,14 @@
-import { getSumOfPowers } from "./day2/solution_part2";
-import inputData from "./day2/input";
+// Turn on or add the day you want top display, the day files themselves are
+// responsible for displaying the results.
 
-const s = performance.now();
+// import "./day1/part1";
+// import "./day1/part2";
 
-console.log(getSumOfPowers(inputData));
+// import "./day2/part1";
+// import "./day2/part2";
 
-console.log("Operation took:", performance.now() - s);
+// import "./day3/part1";
+// import "./day3/part2";
+
+import "./day4/part1";
+// import "./day4/part2";

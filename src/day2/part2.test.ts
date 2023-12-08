@@ -1,5 +1,4 @@
-import { getSumOfPossibleGames } from "./solution_part1";
-import { getColorAmountsForGames, getSumOfPowers } from "./solution_part2";
+import { getColorAmountsForGames, getSumOfPowers } from "./part2";
 
 /* ========================================================================== */
 
@@ -10,14 +9,6 @@ const testData = [
   "Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red",
   "Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green",
 ];
-
-/* ========================================================================== */
-
-describe("day2 - part 1", () => {
-  it("should add the game ids of possible games together", () => {
-    expect(getSumOfPossibleGames(testData)).toEqual(8);
-  });
-});
 
 /* ========================================================================== */
 

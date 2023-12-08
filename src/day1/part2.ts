@@ -1,4 +1,5 @@
-import { getSumOfCalibrationForDigits } from "./solution_part1";
+import { executeSolution } from "../utilities/execution";
+import { getSumOfCalibrationForDigits } from "./part1";
 
 /* ========================================================================== */
 
@@ -28,3 +29,10 @@ export function getSumOfCalibrationIncludingWrittenNumbers(
     })
   );
 }
+
+/* ========================================================================== */
+
+executeSolution(
+  "./src/day1/input.txt",
+  getSumOfCalibrationIncludingWrittenNumbers
+);
