@@ -12,113 +12,122 @@ type EngineSchemaRow = {
  */
 function getIndexesToSearch(
   query: string,
-  currentRowIndex: number,
-  maxColumnIndex: number
+  currentRowIndex: number
 ): Record<string, number[]> {
   // Make sure we don't return indexes that are outside of the matrix we're
   // looking at, either to the right or left.
-  const filterOutOfBounds = (index: number) =>
-    index !== -1 && index <= maxColumnIndex;
-  const [startColumn] = query.split("").map((char) => parseInt(char, 10));
+  const columns = query.split("_").map((char) => parseInt(char, 10));
+  const startColumn = columns.at(0);
 
   return {
-    rows: [currentRowIndex - 1, currentRowIndex, currentRowIndex + 1].filter(
-      filterOutOfBounds
-    ),
-    columns: Array(query.length + 2)
+    rows: [currentRowIndex - 1, currentRowIndex, currentRowIndex + 1],
+    columns: Array(columns.length + 2)
       .fill(startColumn - 1)
-      .map((c, i) => c + i)
-      .filter(filterOutOfBounds),
+      .map((c, i) => c + i),
   };
 }
 
 /* ========================================================================== */
 
-export function getSumOfPiecesInEngineSchema(data: string[]): any {
-  const maxColumnIndex = data.at(0).length - 1;
+/**
+ * We add dots around the sides and at the top and bottom of the input so we
+ * don't have to worry about checking if we're out of bounds.
+ */
+function addPaddingToInput(input: string[]): string[] {
+  const maxColumnIndex = input.at(0).length - 1;
+  const paddedInput = input.map((row) => `.${row}.`);
+
+  paddedInput.unshift(".".repeat(maxColumnIndex + 2));
+  paddedInput.push(".".repeat(maxColumnIndex + 2));
+
+  return paddedInput;
+}
+
+/* ========================================================================== */
+
+export function getSumOfPiecesInEngineSchema(input: string[]): number {
+  const paddedMatrix = addPaddingToInput(input);
+  const schemaMatrix = paddedMatrix.map((row) => row.split(""));
+  // To we create a bit of an overview of where the numbers and the symbols
+  // are located in the engine schema. We add them to separate properties.
+  const engineSchemaWithNumberAndSymbolIndexes = schemaMatrix.map((row) => {
+    const numberIndexes = [];
+    const symbolIndexes = [];
+
+    row.forEach((char, charIndex) => {
+      const isNumber = !isNaN(parseInt(char, 10));
+      const isSymbol = !isNumber && char !== ".";
+
+      if (isSymbol) symbolIndexes.push(charIndex);
+      if (isNumber) numberIndexes.push(charIndex);
+    });
+
+    return {
+      numberIndexes,
+      symbolIndexes,
+    };
+  });
 
   /* ------------------------------------------------------------------------ */
 
-  const schemaMatrix = data.map((row) => row.split(""));
-  // To we create a bit of an overview of where the numbers and the symbols
-  // are located in the engine schema. We add them to separate properties.
-  const engineSchema = schemaMatrix
-    .map((row) => {
-      const numberIndexes = [];
-      const symbolIndexes = [];
-
-      row.forEach((char, charIndex) => {
-        const isNumber = !isNaN(Number(char));
-        const isSymbol = !isNumber && char !== ".";
-
-        if (isSymbol) symbolIndexes.push(charIndex);
-        if (isNumber) numberIndexes.push(charIndex);
-      });
-
-      return {
-        numberIndexes,
-        symbolIndexes,
-      };
-    })
-
-    /* -------------------------------------------------------------------- */
-
-    // Now that we have an overview, we override the number indexes property
-    // by adding together all adjacent numbers.
-    // e.g. ['012', '567']
-    .map((row: EngineSchemaRow) => ({
-      ...row,
-      numberIndexes: row.numberIndexes.reduce(
-        (numberIndexes, number, numberIndex) => {
-          const previousNumber = parseInt(
-            row.numberIndexes[numberIndex - 1],
-            10
-          );
-          const previousNumberIsAdjacent =
-            !isNaN(previousNumber) &&
-            parseInt(number, 10) - previousNumber === 1;
-
-          if (previousNumberIsAdjacent) {
-            numberIndexes[numberIndexes.length - 1] = `${numberIndexes.at(
-              -1
-            )}${number}`;
-          } else {
-            numberIndexes.push(number.toString());
-          }
-
-          return numberIndexes;
-        },
-        []
-      ),
-    }));
-
-  /* -------------------------------------------------------------------- */
-
-  // Make sure we also add the actual numbers from the engine schema
-  // so we can calculate the sum later on.
-  // e.g. ['716', '55']
+  // Now that we have an overview, we override the number indexes property
+  // by adding together all adjacent numbers, denoted by an underscore to make
+  // sure we also account for multi digit indexes.
+  // e.g. ['0_1_2', '5_6_7', '66_67_68']
   return (
-    engineSchema
+    engineSchemaWithNumberAndSymbolIndexes
+      .map((row: EngineSchemaRow) => ({
+        ...row,
+        numberIndexes: row.numberIndexes.reduce(
+          (numberIndexes, number, numberIndex) => {
+            const previousNumber = parseInt(
+              row.numberIndexes[numberIndex - 1],
+              10
+            );
+            const previousNumberIsAdjacent =
+              !isNaN(previousNumber) &&
+              parseInt(number, 10) - previousNumber === 1;
+
+            if (previousNumberIsAdjacent) {
+              numberIndexes[numberIndexes.length - 1] = `${numberIndexes.at(
+                -1
+              )}_${number}`;
+            } else {
+              numberIndexes.push(number.toString());
+            }
+
+            return numberIndexes;
+          },
+          []
+        ),
+      }))
+
+      /* -------------------------------------------------------------------- */
+
+      // Make sure we also add the actual numbers from the engine schema
+      // so we can calculate the sum later on.
+      // Here we also filter out numbers that are not adjacent to a symbol.
+      // e.g. [716, 55]
       .map((row: EngineSchemaRow, rowIndex) => ({
         ...row,
         numbers: row.numberIndexes.reduce(
           (numbers: number[], numberIndex: string) => {
-            const startIndex = parseInt(numberIndex.at(0), 10);
-            const endIndex = parseInt(numberIndex.at(-1), 10);
-            const columnData = schemaMatrix[rowIndex].slice(
+            const numberIndexes = numberIndex.split("_");
+            const startIndex = parseInt(numberIndexes.at(0), 10);
+            const endIndex = parseInt(numberIndexes.at(-1), 10);
+            const foundNumber = paddedMatrix[rowIndex].substring(
               startIndex,
               endIndex + 1
             );
-            const foundNumber = columnData.join("");
             const { rows: rowsToSearch, columns: columnsToSearch } =
-              getIndexesToSearch(numberIndex, rowIndex, maxColumnIndex);
-            const hasAdjacentSymbol = rowsToSearch.some((rowIndex) => {
-              const { symbolIndexes } = engineSchema[rowIndex];
-
-              return symbolIndexes.some((symbolIndex) =>
+              getIndexesToSearch(numberIndex, rowIndex);
+            const hasAdjacentSymbol = rowsToSearch.some((rowIndex) =>
+              engineSchemaWithNumberAndSymbolIndexes[
+                rowIndex
+              ].symbolIndexes.some((symbolIndex) =>
                 columnsToSearch.includes(symbolIndex)
-              );
-            });
+              )
+            );
 
             if (hasAdjacentSymbol) {
               numbers.push(parseInt(foundNumber, 10));
@@ -130,7 +139,7 @@ export function getSumOfPiecesInEngineSchema(data: string[]): any {
         ),
       }))
 
-      // /* -------------------------------------------------------------------- */
+      /* -------------------------------------------------------------------- */
 
       // Now we have all filtered results in place, we need to add the
       // numbers together to get the total sum
