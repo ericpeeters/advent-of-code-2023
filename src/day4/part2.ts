@@ -2,6 +2,13 @@ import { executeSolution } from "../utilities/execution";
 
 /* ========================================================================== */
 
+type ScratchCard = {
+  copies: number;
+  score: number;
+};
+
+/* ========================================================================== */
+
 function getNumbersFromString(input: string): number[] {
   const numbers = input.split(" ").filter((x) => x !== "");
 
@@ -25,21 +32,36 @@ function getCardInfo(line: string) {
 
 /* ========================================================================== */
 
-export function calculateTotalSumOfCards(input: string[]): number[] {
+export function calculateTotalSumOfCards(input: string[]): number {
   const winningNumbers = input.map((line) => {
     const { winningNumbers, cardNumbers } = getCardInfo(line);
-    const amountOfWinningNumbers = winningNumbers.reduce(
+
+    return winningNumbers.reduce(
       (sum, winningNumber) =>
         cardNumbers.includes(winningNumber) ? sum + 1 : sum,
       0
     );
+  });
+  const scratchCards: ScratchCard[] = winningNumbers.map((score) => ({
+    copies: 1,
+    score,
+  }));
 
-    return amountOfWinningNumbers;
+  scratchCards.forEach(({ score }, i) => {
+    for (let j = i + 1; j <= score + i; j++) {
+      const { copies } = scratchCards[i];
+
+      if (j === scratchCards.length) {
+        break;
+      }
+
+      scratchCards[j].copies += 1 * copies;
+    }
   });
 
-  return winningNumbers;
+  return scratchCards.reduce((sum, { copies }) => sum + copies, 0);
 }
 
 /* ========================================================================== */
 
-// executeSolution("./src/day4/input.txt", calculateTotalSumOfCards);
+executeSolution("./src/day4/input.txt", calculateTotalSumOfCards);

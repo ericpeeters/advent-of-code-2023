@@ -14,7 +14,7 @@ const testData = [
 /* ========================================================================== */
 
 describe("Day 4 - Part 2", () => {
-  it("should be able to calculate the amount of scratchcards we have", () => {
+  it.only("should be able to calculate the amount of scratchcards we have", () => {
     expect(calculateTotalSumOfCards(testData)).toEqual(30);
   });
 });
