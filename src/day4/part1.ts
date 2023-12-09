@@ -8,20 +8,31 @@ function getNumbersFromString(input: string): number[] {
   return numbers.map((n) => parseInt(n, 10));
 }
 
+function getCardInfo(line: string) {
+  const numbersIndex = line.indexOf(": ");
+  const numbers = line.substring(numbersIndex + 1, line.length);
+  const [winningNumbers, cardNumbers] = numbers
+    .split(" | ")
+    .map(getNumbersFromString);
+
+  return {
+    winningNumbers,
+    cardNumbers,
+  };
+}
+
+/* ========================================================================== */
+
 export function calculateTotalSumOfCards(input: string[]): number {
   return input.reduce((totalScore, line) => {
-    const numbersIndex = line.indexOf(": ");
-    const numbers = line.substring(numbersIndex + 1, line.length);
-    const [winningNumbers, cardNumbers] = numbers.split(" | ");
-    const winningNumbersArray = getNumbersFromString(winningNumbers);
-    const cardNumbersArray = getNumbersFromString(cardNumbers);
+    const { winningNumbers, cardNumbers } = getCardInfo(line);
 
     let numberOfMatches = 0;
 
     return (
       totalScore +
-      winningNumbersArray.reduce((sum, winningNumber) => {
-        const hasWinningNumber = cardNumbersArray.includes(winningNumber);
+      winningNumbers.reduce((sum, winningNumber) => {
+        const hasWinningNumber = cardNumbers.includes(winningNumber);
 
         if (!hasWinningNumber) {
           return sum;

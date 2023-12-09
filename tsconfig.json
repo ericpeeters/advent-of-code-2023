@@ -1,7 +1,9 @@
 {
     "compilerOptions": {
         "lib": [
-            "es2021"
-        ]
+            "es2021",
+            "es2015"
+        ],
+        "downlevelIteration": true
     },
 }

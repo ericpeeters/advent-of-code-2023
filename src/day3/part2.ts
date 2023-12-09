@@ -1,86 +1,128 @@
-/**
- * Retrieve all the indexes for each row we need to search for symbols in
- * @param query - The query we're finding indexes for, for example: '012'
- */
-function getIndexesToSearch(
-  gearIndex: number,
-  rowIndex: number
-): Record<string, number[]> {
-  return {
-    rows: [rowIndex - 1, rowIndex, rowIndex + 1],
-    columns: Array(3)
-      .fill(gearIndex - 1)
-      .map((c, i) => c + i),
-  };
+import { executeSolution } from "../utilities/execution";
+
+/* ========================================================================== */
+
+type NumberMatch = {
+  number: number;
+  index: number;
+  length: number;
+  indexes?: number[];
+};
+
+/* ========================================================================== */
+
+function getAdjacentNumberIndex(
+  numberIndexes: NumberMatch[],
+  index: number
+): NumberMatch {
+  return numberIndexes.find(({ indexes }) => indexes.includes(index));
+}
+
+function getNumberIndexes(rowWithNumbers: NumberMatch[]): NumberMatch[] {
+  return rowWithNumbers.map(({ index, number, length }) => {
+    let indexes: number[] = [];
+
+    for (let j = 0; j < length; j++) {
+      indexes.push(index + j);
+    }
+
+    return { number, length, index, indexes };
+  });
 }
 
 /* ========================================================================== */
 
-/**
- * We add dots around the sides and at the top and bottom of the input so we
- * don't have to worry about checking if we're out of bounds.
- */
-function addPaddingToInput(input: string[]): string[] {
-  const maxColumnIndex = input.at(0).length - 1;
-  const paddedInput = input.map((row) => `.${row}.`);
-
-  paddedInput.unshift(".".repeat(maxColumnIndex + 2));
-  paddedInput.push(".".repeat(maxColumnIndex + 2));
-
-  return paddedInput;
-}
-
-/* ========================================================================== */
-
-const searchDirections = [
-  [-1, -1],
-  [0, -1],
-  [1, -1],
-  [-1, 0],
-  [1, 0],
-  [-1, 1],
-  [0, 1],
-  [1, 1],
-];
-
-function getCellContent(
-  matrix: string[],
-  y: number,
-  x: number,
-  [adjustY, adjustX]: number[]
-): string {
-  return matrix[y + adjustY][x + adjustX];
-}
-
-/* ========================================================================== */
-
-export function getSumOfGearsInEngineSchema(input: string[]): number {
-  const paddedMatrix = addPaddingToInput(input);
-  const schemaMatrix = paddedMatrix.map((row) => row.split(""));
-  const gearIndexes = schemaMatrix
-    .map((row) => row.findIndex((char) => char === "*"))
-    .map((gearIndex, rowIndex) => {
-      if (gearIndex === -1) return;
-
-      const indexesToSearch = getIndexesToSearch(gearIndex, rowIndex);
-
-      return indexesToSearch.rows.map((rowIndex) =>
-        indexesToSearch.columns.map(
-          (columnIndex) => schemaMatrix[rowIndex][columnIndex]
-        )
+function getAllAdjacentNumbersIndexes(
+  asteriskIndexes: number[],
+  numberMatches: NumberMatch[]
+): number[] {
+  return asteriskIndexes
+    .reduce((matches, ai) => {
+      const numberMatch: NumberMatch = getAdjacentNumberIndex(
+        numberMatches,
+        ai
       );
-    })
-    // Filter out all rows that don't have a gear
-    .filter((g) => g !== undefined)
-    // Filter out all rows that doesn't have multiple numbers surrounding
-    // the gear
-    .filter((g) => {
-      console.log(g);
 
-      return true;
-    });
+      if (
+        numberMatch !== undefined &&
+        matches.every((numberIndex) => numberIndex.index !== numberMatch.index)
+      ) {
+        matches.push(numberMatch);
+      }
 
-  console.log(gearIndexes);
-
-  return 0;
+      return matches;
+    }, [])
+    .map((numberIndex) => numberIndex.number);
 }
+
+export function getSumOfGearsInEngineSchema(engineSchema: string[]): number {
+  const asteriskIndexes = [];
+  const numbers = [];
+
+  /* ------------------------------------------------------------------------ */
+
+  engineSchema.forEach((row) => {
+    // Retrieve all the asterisk symbols from the current row
+    const asteriskMatches = [...row.matchAll(/(\*)/g)];
+    const numberMatches = [...row.matchAll(/(\d+)/g)];
+
+    // If we have an asterisk in this row, store the index
+    asteriskIndexes.push(
+      asteriskMatches.length == 0 ? [] : asteriskMatches.map((o) => o.index)
+    );
+
+    numbers.push(
+      numberMatches.length == 0
+        ? []
+        : numberMatches.map(
+            (match) =>
+              ({
+                index: match.index,
+                number: parseInt(match[0]),
+                length: match[0].length,
+              } satisfies NumberMatch)
+          )
+    );
+  });
+
+  /* ------------------------------------------------------------------------ */
+
+  return asteriskIndexes.reduce((sum, asterisks, retrieveNumberIndex) => {
+    let rowGearRatioSum = asterisks.reduce(
+      (sumOfRow: number, asteriskIndex: number) => {
+        const currentRow = getNumberIndexes(numbers[retrieveNumberIndex]);
+        const aboveRow = getNumberIndexes(
+          numbers[retrieveNumberIndex - 1] || []
+        );
+        const belowRow = getNumberIndexes(
+          numbers[retrieveNumberIndex + 1] || []
+        );
+        const adjacentNumbers = [
+          ...getAllAdjacentNumbersIndexes(
+            [asteriskIndex - 1, asteriskIndex + 1],
+            currentRow
+          ),
+          ...getAllAdjacentNumbersIndexes(
+            [asteriskIndex, asteriskIndex - 1, asteriskIndex + 1],
+            aboveRow
+          ),
+          ...getAllAdjacentNumbersIndexes(
+            [asteriskIndex, asteriskIndex - 1, asteriskIndex + 1],
+            belowRow
+          ),
+        ];
+
+        return adjacentNumbers.length == 2
+          ? sumOfRow + adjacentNumbers[0] * adjacentNumbers[1]
+          : sumOfRow;
+      },
+      0
+    );
+
+    return sum + rowGearRatioSum;
+  }, 0);
+}
+
+/* ========================================================================== */
+
+executeSolution("./src/day3/input.txt", getSumOfGearsInEngineSchema);

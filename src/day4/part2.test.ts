@@ -1,4 +1,4 @@
-import { calculateTotalNumberOfCards } from "./part2";
+import { calculateTotalSumOfCards } from "./part2";
 
 /* ========================================================================== */
 
@@ -13,8 +13,8 @@ const testData = [
 
 /* ========================================================================== */
 
-describe("Day 4 - Part 1", () => {
+describe("Day 4 - Part 2", () => {
   it("should be able to calculate the amount of scratchcards we have", () => {
-    expect(calculateTotalNumberOfCards(testData)).toEqual(13);
+    expect(calculateTotalSumOfCards(testData)).toEqual(30);
   });
 });
