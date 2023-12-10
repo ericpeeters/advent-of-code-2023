@@ -33,14 +33,14 @@ function getNumberIndexes(rowWithNumbers: NumberMatch[]): NumberMatch[] {
 /* ========================================================================== */
 
 function getAllAdjacentNumbersIndexes(
-  asteriskIndexes: number[],
+  gearIndexes: number[],
   numberMatches: NumberMatch[]
 ): number[] {
-  return asteriskIndexes
-    .reduce((matches, ai) => {
+  return gearIndexes
+    .reduce((matches, index) => {
       const numberMatch: NumberMatch = getAdjacentNumberIndex(
         numberMatches,
-        ai
+        index
       );
 
       if (
@@ -56,19 +56,19 @@ function getAllAdjacentNumbersIndexes(
 }
 
 export function getSumOfGearsInEngineSchema(engineSchema: string[]): number {
-  const asteriskIndexes = [];
+  const gearIndexes = [];
   const numbers = [];
 
   /* ------------------------------------------------------------------------ */
 
   engineSchema.forEach((row) => {
-    // Retrieve all the asterisk symbols from the current row
-    const asteriskMatches = [...row.matchAll(/(\*)/g)];
+    // Retrieve all the gear symbols from the current row
+    const gearMatches = [...row.matchAll(/(\*)/g)];
     const numberMatches = [...row.matchAll(/(\d+)/g)];
 
-    // If we have an asterisk in this row, store the index
-    asteriskIndexes.push(
-      asteriskMatches.length == 0 ? [] : asteriskMatches.map((o) => o.index)
+    // If we have an gear in this row, store the index
+    gearIndexes.push(
+      gearMatches.length == 0 ? [] : gearMatches.map((o) => o.index)
     );
 
     numbers.push(
@@ -87,9 +87,9 @@ export function getSumOfGearsInEngineSchema(engineSchema: string[]): number {
 
   /* ------------------------------------------------------------------------ */
 
-  return asteriskIndexes.reduce((sum, asterisks, retrieveNumberIndex) => {
-    let rowGearRatioSum = asterisks.reduce(
-      (sumOfRow: number, asteriskIndex: number) => {
+  return gearIndexes.reduce((sum, gears, retrieveNumberIndex) => {
+    let rowGearRatioSum = gears.reduce(
+      (sumOfRow: number, gearIndex: number) => {
         const currentRow = getNumberIndexes(numbers[retrieveNumberIndex]);
         const aboveRow = getNumberIndexes(
           numbers[retrieveNumberIndex - 1] || []
@@ -99,15 +99,15 @@ export function getSumOfGearsInEngineSchema(engineSchema: string[]): number {
         );
         const adjacentNumbers = [
           ...getAllAdjacentNumbersIndexes(
-            [asteriskIndex - 1, asteriskIndex + 1],
+            [gearIndex - 1, gearIndex + 1],
             currentRow
           ),
           ...getAllAdjacentNumbersIndexes(
-            [asteriskIndex, asteriskIndex - 1, asteriskIndex + 1],
+            [gearIndex, gearIndex - 1, gearIndex + 1],
             aboveRow
           ),
           ...getAllAdjacentNumbersIndexes(
-            [asteriskIndex, asteriskIndex - 1, asteriskIndex + 1],
+            [gearIndex, gearIndex - 1, gearIndex + 1],
             belowRow
           ),
         ];
