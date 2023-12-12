@@ -5,14 +5,11 @@ import rawInput from "./input";
 /* ========================================================================== */
 
 export function getLowestLocationForSeeds(input: string = rawInput): number {
-  console.log(input);
-
-  const seeds: number[] = input
+  let data: number[] = input
     .split("\n")[0]
     .substring(7)
     .split(" ")
     .map((str) => parseInt(str, 10));
-  let locations: number[];
 
   input
     .split("\n\n")
@@ -33,7 +30,7 @@ export function getLowestLocationForSeeds(input: string = rawInput): number {
           };
         });
 
-      locations = seeds.map((value) => {
+      data = data.map((value) => {
         const lowestRange = mappings.find(
           ({ until, range }) => value >= until && value < until + range
         );
@@ -44,7 +41,7 @@ export function getLowestLocationForSeeds(input: string = rawInput): number {
       });
     });
 
-  return locations.reduce((lowest, loc) => Math.min(lowest, loc), Infinity);
+  return data.reduce((lowest, loc) => Math.min(lowest, loc), Infinity);
 }
 
 /* ========================================================================== */

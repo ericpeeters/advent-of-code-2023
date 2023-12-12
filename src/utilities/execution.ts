@@ -4,7 +4,7 @@ import { loadInputFile } from "./input-loader";
 /* ========================================================================== */
 
 export function executeSolution(inputPath: string | null, fn: Function): void {
-  let input = null;
+  let input: ReturnType<typeof loadInputFile> | undefined = undefined;
 
   if (inputPath) {
     input = loadInputFile(inputPath);
