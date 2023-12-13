@@ -3,17 +3,17 @@
  * @param cb
  * @returns
  */
-export function benchmark<T = any>(
-  cb: Function
-): (...args: T[]) => { output: string; duration: string } {
-  return (...args: T[]) => {
-    const start = performance.now();
-    const output = cb(...args);
-    const end = performance.now();
+export function benchmark(cb: Function): void {
+  if (process.env.npm_lifecycle_event === "test") {
+    return;
+  }
 
-    return {
-      output: `Output is: ${output}`,
-      duration: `Executed in ${end - start}ms`,
-    };
-  };
+  const start = performance.now();
+  const returnValue = cb();
+  const end = performance.now();
+
+  console.log({
+    output: `Output is: ${returnValue}`,
+    duration: `Executed in ${end - start}ms`,
+  });
 }

@@ -1,4 +1,6 @@
-import { executeSolution } from "../utilities/execution";
+import { benchmark } from "../utilities/benchmark";
+
+import rawInput from "./input";
 
 /* ========================================================================== */
 
@@ -48,7 +50,7 @@ export function getColorAmountsForGames(games: string[]): ColorAmounts[] {
     );
 }
 
-export function getSumOfPowers(games: string[]) {
+export function getSumOfPowers(games: string[] = rawInput.split("\n")): number {
   const minColorAmounts = getColorAmountsForGames(games);
 
   return minColorAmounts.reduce((sum, colors) => {
@@ -58,4 +60,4 @@ export function getSumOfPowers(games: string[]) {
 
 /* ========================================================================== */
 
-executeSolution("./src/day2/input.txt", getSumOfPowers);
+benchmark(getSumOfPowers);

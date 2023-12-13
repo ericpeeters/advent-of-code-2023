@@ -1,15 +1,11 @@
-import { executeSolution } from "../utilities/execution";
+import { benchmark } from "../utilities/benchmark";
 
 import rawInput from "./input";
 
 /* ========================================================================== */
 
 export function getLowestLocationForSeeds(input: string = rawInput): number {
-  let data: number[] = input
-    .split("\n")[0]
-    .substring(7)
-    .split(" ")
-    .map((str) => parseInt(str, 10));
+  let data: number[] = input.split("\n")[0].substring(7).split(" ").map(Number);
 
   input
     .split("\n\n")
@@ -19,9 +15,7 @@ export function getLowestLocationForSeeds(input: string = rawInput): number {
         .split("\n")
         .slice(1)
         .map((line) => {
-          const [from, until, range] = line
-            .split(" ")
-            .map((str) => parseInt(str, 10));
+          const [from, until, range] = line.split(" ").map(Number);
 
           return {
             from,
@@ -46,4 +40,4 @@ export function getLowestLocationForSeeds(input: string = rawInput): number {
 
 /* ========================================================================== */
 
-executeSolution(null, getLowestLocationForSeeds);
+benchmark(getLowestLocationForSeeds);

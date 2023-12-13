@@ -1,4 +1,6 @@
-import { executeSolution } from "../utilities/execution";
+import { benchmark } from "../utilities/benchmark";
+
+import rawInput from "./input";
 
 /* ========================================================================== */
 
@@ -23,7 +25,9 @@ function isGamePossible(colors: Colors[]): boolean {
   );
 }
 
-export function getSumOfPossibleGames(games: string[]): number {
+export function getSumOfPossibleGames(
+  games: string[] = rawInput.split("\n")
+): number {
   const possibleGames = games
     .map((game) => {
       const [gameId, colors] = game.split(": ");
@@ -56,4 +60,4 @@ export function getSumOfPossibleGames(games: string[]): number {
 
 /* ========================================================================== */
 
-executeSolution("./src/day2/input.txt", getSumOfPossibleGames);
+benchmark(getSumOfPossibleGames);

@@ -1,4 +1,4 @@
-import { executeSolution } from "../utilities/execution";
+import { benchmark } from "../utilities/benchmark";
 
 /* ========================================================================== */
 
@@ -21,4 +21,4 @@ export function getSumOfCalibrationForDigits(input: string[]): number {
 
 /* ========================================================================== */
 
-executeSolution("./src/day1/input.txt", getSumOfCalibrationForDigits);
+benchmark(getSumOfCalibrationForDigits);

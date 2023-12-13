@@ -1,4 +1,4 @@
-import { executeSolution } from "../utilities/execution";
+import { benchmark } from "../utilities/benchmark";
 import { getSumOfCalibrationForDigits } from "./part1";
 
 /* ========================================================================== */
@@ -32,7 +32,4 @@ export function getSumOfCalibrationIncludingWrittenNumbers(
 
 /* ========================================================================== */
 
-executeSolution(
-  "./src/day1/input.txt",
-  getSumOfCalibrationIncludingWrittenNumbers
-);
+benchmark(getSumOfCalibrationIncludingWrittenNumbers);

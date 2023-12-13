@@ -1,4 +1,5 @@
-import { executeSolution } from "../utilities/execution";
+import { benchmark } from "../utilities/benchmark";
+import rawInput from "./input";
 
 /* ========================================================================== */
 
@@ -23,7 +24,9 @@ function getCardInfo(line: string) {
 
 /* ========================================================================== */
 
-export function calculateTotalSumOfCards(input: string[]): number {
+export function calculateTotalSumOfCards(
+  input: string[] = rawInput.split("\n")
+): number {
   return input.reduce((totalScore, line) => {
     const { winningNumbers, cardNumbers } = getCardInfo(line);
 
@@ -48,4 +51,4 @@ export function calculateTotalSumOfCards(input: string[]): number {
 
 /* ========================================================================== */
 
-executeSolution("./src/day4/input.txt", calculateTotalSumOfCards);
+benchmark(calculateTotalSumOfCards);

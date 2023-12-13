@@ -1,4 +1,4 @@
-Game 1: 4 green, 3 blue, 11 red; 7 red, 5 green, 10 blue; 3 green, 8 blue, 8 red; 4 red, 12 blue; 15 red, 3 green, 10 blue
+export default `Game 1: 4 green, 3 blue, 11 red; 7 red, 5 green, 10 blue; 3 green, 8 blue, 8 red; 4 red, 12 blue; 15 red, 3 green, 10 blue
 Game 2: 3 red, 1 blue, 2 green; 1 blue, 9 green; 1 red, 10 green
 Game 3: 5 green, 9 red, 4 blue; 3 green, 7 blue; 12 blue, 3 green, 3 red; 3 blue, 7 red, 2 green; 7 blue, 3 green, 10 red
 Game 4: 2 green, 2 blue; 12 red, 9 green, 2 blue; 13 green, 15 red, 4 blue; 14 red, 3 green, 5 blue; 6 red, 1 green; 1 blue, 2 red, 2 green
@@ -97,4 +97,4 @@ Game 96: 2 red, 19 blue, 2 green; 10 blue, 1 red, 2 green; 9 blue, 1 red; 2 gree
 Game 97: 6 green, 7 blue, 5 red; 7 green, 1 red, 11 blue; 6 green, 6 red, 5 blue; 2 red, 9 blue, 1 green
 Game 98: 5 green, 8 red, 15 blue; 16 green, 9 blue, 8 red; 5 blue, 3 red, 2 green; 13 blue, 12 green, 4 red; 2 red, 15 green, 3 blue; 1 green, 11 blue, 2 red
 Game 99: 1 green, 7 blue, 6 red; 16 blue, 9 red; 1 green, 17 red, 12 blue; 15 red, 7 blue; 8 blue, 14 red
-Game 100: 5 blue, 11 red, 6 green; 11 red, 2 blue, 5 green; 6 blue, 6 green; 2 blue, 6 red, 15 green; 7 red, 4 blue, 7 green
+Game 100: 5 blue, 11 red, 6 green; 11 red, 2 blue, 5 green; 6 blue, 6 green; 2 blue, 6 red, 15 green; 7 red, 4 blue, 7 green`;

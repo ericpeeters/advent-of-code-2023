@@ -1,4 +1,5 @@
-import { executeSolution } from "../utilities/execution";
+import { benchmark } from "../utilities/benchmark";
+import rawInput from "./input";
 
 /* ========================================================================== */
 
@@ -49,7 +50,9 @@ function addPaddingToInput(input: string[]): string[] {
 
 /* ========================================================================== */
 
-export function getSumOfPiecesInEngineSchema(input: string[]): number {
+export function getSumOfPiecesInEngineSchema(
+  input: string[] = rawInput.split("\n")
+): number {
   const paddedMatrix = addPaddingToInput(input);
   const schemaMatrix = paddedMatrix.map((row) => row.split(""));
   // To we create a bit of an overview of where the numbers and the symbols
@@ -157,4 +160,4 @@ export function getSumOfPiecesInEngineSchema(input: string[]): number {
 
 /* ========================================================================== */
 
-executeSolution("./src/day3/input.txt", getSumOfPiecesInEngineSchema);
+benchmark(getSumOfPiecesInEngineSchema);
