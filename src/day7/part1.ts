@@ -1,40 +1,30 @@
+import { benchmark } from "../utilities/benchmark";
+import rawInput from "./input";
+
+/* ========================================================================== */
+
 function sortCards(handsWithBids: string): string {
   const [cardsInHand] = handsWithBids.split(" ");
 
   return cardsInHand
     .split("")
-    .sort((a, b) => cards[a] - cards[b])
+    .sort((a, b) => cardOptions[a] - cardOptions[b])
     .join("");
 }
 
 /* ========================================================================== */
 
-function getBids(handsWithBids: string): number {
-  const [_, bid] = handsWithBids.split(" ");
-
-  return parseInt(bid, 10);
-}
-
-/* ========================================================================== */
-
-function createCardsIndex(cardsInHand: string): Record<string, number> {
-  return cardsInHand.split("").reduce(
-    (cardsIndex, card) => {
-      cardsIndex[card]++;
-
-      return cardsIndex;
-    },
-    Object.keys(cards).reduce(
-      (baseIndex, card) => ({ ...baseIndex, [card]: 0 }),
-      {}
-    )
-  );
-}
-
-/* ========================================================================== */
+type HandInfo = {
+  sortedCards: string;
+  handScore?: number;
+  cardsIndex?: CardsIndex;
+  cards: string;
+  bid: number;
+  baseScore?: number;
+};
 
 type CardsIndex = Record<string, number>;
-type Combination =
+type Combinations =
   | "fiveOfAKind"
   | "fourOfAKind"
   | "fullHouse"
@@ -43,17 +33,19 @@ type Combination =
   | "onePair"
   | "highCard";
 
-const cardCombinationPoints: Record<Combination, number> = {
-  fiveOfAKind: 21,
-  fourOfAKind: 20,
-  fullHouse: 19,
-  threeOfAKind: 18,
-  twoPair: 17,
-  onePair: 16,
-  highCard: 15,
+/* ========================================================================== */
+
+const cardCombinationPoints: Record<Combinations, number> = {
+  fiveOfAKind: 7,
+  fourOfAKind: 6,
+  fullHouse: 5,
+  threeOfAKind: 4,
+  twoPair: 3,
+  onePair: 2,
+  highCard: 1,
 } as const;
 
-/* -------------------------------------------------------------------------- */
+/* ========================================================================== */
 
 function hasThreeOfAKind(cardsIndex: CardsIndex): boolean {
   return Object.values(cardsIndex).some((c) => c === 3);
@@ -64,7 +56,7 @@ function hasPair(cardsIndex: CardsIndex): boolean {
 }
 
 const cardCombinationPredicates: Record<
-  Combination,
+  Combinations,
   (cardsIndex: CardsIndex) => boolean
 > = {
   fiveOfAKind: (cardsIndex: CardsIndex) =>
@@ -83,7 +75,7 @@ const cardCombinationPredicates: Record<
 
 /* ========================================================================== */
 
-const cards = {
+const cardOptions = {
   A: 14,
   K: 13,
   Q: 12,
@@ -101,15 +93,47 @@ const cards = {
 
 /* ========================================================================== */
 
-function calculateBaseScore(hand: string): number {
-  return hand
+const baseIndex = Object.keys(cardOptions).reduce(
+  (baseIndex, card) => ({ ...baseIndex, [card]: 0 }),
+  {}
+);
+
+function getCardsIndex(cards: string): Record<string, number> {
+  return cards
     .split("")
-    .reduce((score, currentCard) => score + cards[currentCard], 0);
+    .reduce(
+      (cardsIndex, card) => ({ ...cardsIndex, [card]: cardsIndex[card] + 1 }),
+      baseIndex
+    );
 }
 
-function calculateCombinationsScore(hand: string): number {
+/* ========================================================================== */
+
+function getBid(cardsWithBids: string): number {
+  const [_, bid] = cardsWithBids.split(" ");
+
+  return parseInt(bid, 10);
+}
+
+function getCards(cardsWithBids: string): string {
+  const [cards] = cardsWithBids.split(" ");
+
+  return cards;
+}
+
+/* ========================================================================== */
+
+/**
+ * It calculates the base score by converting all characters in the string to
+ * their respective numbers and parsing the entire string is a number
+ */
+function getCardsScores(cards: string): number[] {
+  return cards.split("").map((card) => cardOptions[card]);
+}
+
+function getHandScore(cardsIndex: CardsIndex): number {
   const foundCombination = Object.keys(cardCombinationPredicates).find(
-    (combo) => cardCombinationPredicates[combo](hand)
+    (combo) => cardCombinationPredicates[combo](cardsIndex)
   );
 
   return foundCombination ? cardCombinationPoints[foundCombination] : 0;
@@ -117,33 +141,55 @@ function calculateCombinationsScore(hand: string): number {
 
 /* ========================================================================== */
 
-export function rankAndSumHands(input: string): number {
+export function rankAndSumHands(input: string = rawInput): number {
   return (
     input
       .split("\n")
       .reduce(
-        (allHands, hand) => [
+        (allHands, cardsAndBids) => [
           ...allHands,
           {
-            cards: sortCards(hand),
-            bids: getBids(hand),
+            cards: getCards(cardsAndBids),
+            sortedCards: sortCards(cardsAndBids),
+            bid: getBid(cardsAndBids),
           },
         ],
         []
       )
       // Create a simple index with all the cards and how they're represented
-      .map((hand) => ({ ...hand, cardsIndex: createCardsIndex(hand.cards) }))
+      .map((handInfo: HandInfo) => ({
+        ...handInfo,
+        cardsIndex: getCardsIndex(handInfo.cards),
+      }))
       // Calculate the score by adding combinations and base score
-      .map((hand) => ({
-        ...hand,
-        score:
-          calculateBaseScore(hand.cards) +
-          calculateCombinationsScore(hand.cardsIndex),
+      .map((handInfo: HandInfo) => ({
+        ...handInfo,
+        cardScores: getCardsScores(handInfo.cards),
+        combinationScore: getHandScore(handInfo.cardsIndex),
       }))
       // Now that we know the score, we sort the items by their score DESC
-      .sort((a, b) => a.score - b.score)
+      .sort((a, b) => {
+        // When the combinations are not the same, we can just sort by the
+        // winning combination.
+        // But when the combinations score are equal, we check the base score.
+        if (a.combinationScore !== b.combinationScore)
+          return a.combinationScore - b.combinationScore;
+
+        const diffIndex = a.cardScores.findIndex((card, index) => {
+          return card !== b.cardScores[index];
+        });
+
+        return a.cardScores[diffIndex] - b.cardScores[diffIndex];
+      })
       // Now we update the scores to also incorporate the rank
-      .map((hand, index) => ({ ...hand, score: hand.score * (index + 1) }))
-      .reduce((sum, { score }) => sum + score, 0)
+      .map((handInfo: HandInfo, index) => ({
+        ...handInfo,
+        bid: handInfo.bid * (index + 1),
+      }))
+      .reduce((sum, handInfo: HandInfo) => sum + handInfo.bid, 0)
   );
 }
+
+/* ========================================================================== */
+
+benchmark(rankAndSumHands);
